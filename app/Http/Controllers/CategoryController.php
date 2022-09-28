@@ -53,4 +53,10 @@ class CategoryController extends Controller
             return response()->json(['error' => true, 'message' => 'Category Not Found!'], 400);
         }
     }
+
+    // function to select all categories
+    function selectCategories()
+    {
+        return Category::all();
+    }
 }
