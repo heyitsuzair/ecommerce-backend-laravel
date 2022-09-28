@@ -53,4 +53,10 @@ class UserController extends Controller
             return response()->json(['error' => false, 'user_id' => $check_if_exists->user_id], 200);
         }
     }
+
+    // function to get all users in db
+    function getUsers()
+    {
+        return User::all('user_id', 'user_email', 'user_name');
+    }
 }
