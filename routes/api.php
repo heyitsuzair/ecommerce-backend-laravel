@@ -31,4 +31,5 @@ Route::post('/updateUser/{user_id}', [UserController::class, 'updateUser']);
 
 /* ------------------ Category Routes Start ---------------- */
 Route::post('/addCategory', [CategoryController::class, 'addCategory']);
+Route::post('/delCategory/{id}', [CategoryController::class, 'deleteCategory']);
 /* ------------------ Category Routes End ---------------- */
