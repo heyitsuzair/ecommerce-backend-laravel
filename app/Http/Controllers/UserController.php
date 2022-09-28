@@ -35,7 +35,7 @@ class UserController extends Controller
     // function to delete user
     function delUser($id)
     {
-        $delete  = User::where('user_id', $id)->delete();
+        $delete  = User::where('id', $id)->delete();
         if ($delete == 1) {
             return ['error' => false, 'message' => 'User Deleted!'];
         } else {
@@ -50,13 +50,28 @@ class UserController extends Controller
         if (!$check_if_exists || !Hash::check($req->password, $check_if_exists->user_password)) {
             return response()->json(['error' => true, 'message' => 'Invalid Credentials!'], 401);
         } else {
-            return response()->json(['error' => false, 'user_id' => $check_if_exists->user_id], 200);
+            return response()->json(['error' => false, 'user_id' => $check_if_exists->id], 200);
         }
     }
 
     // function to get all users in db
     function getUsers()
     {
-        return User::all('user_id', 'user_email', 'user_name');
+        return User::all('id', 'user_email', 'user_name');
+    }
+
+    // function to update user
+    function updateUser($user_id, Request $req)
+    {
+        $user = User::find($user_id);
+        $user->user_name = $req->input('name');
+        $user->user_email = $req->input('email');
+        $user->user_password = Hash::make($req->input('password'));
+        $user->save();
+        if ($user) {
+            return response()->json(['error' => false, 'message' => 'User Updated!'], 200);
+        } else {
+            return response()->json(['error' => true, 'message' => 'Internal Server Error!'], 500);
+        }
     }
 }
