@@ -19,7 +19,6 @@ class UserController extends Controller
         if ($check_if_exists) {
             return ['error' => true, 'message' => 'User Already Exists!'];
         } else {
-
             $user = new User;
             $user->user_email = $req->input('email');
             $user->user_name = $req->input('name');
