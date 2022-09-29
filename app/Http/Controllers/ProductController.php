@@ -6,8 +6,9 @@ use App\Models\Product;
 use App\Models\Single_Product_Category;
 use App\Models\Single_Product_Color;
 use App\Models\Single_Product_Size;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
-use stdClass;
+
 
 class ProductController extends Controller
 {
@@ -74,5 +75,33 @@ class ProductController extends Controller
         }
         // return all products found, after adding sizes,colors and categories respectively
         return $products;
+    }
+
+    // function to delete a product
+    function delProduct($id)
+    {
+        // check whether the product id exists or not
+        $select = Product::where('id', $id)->exists();
+        if ($select) {
+
+            $delProduct = Product::where('id', $id)->delete();
+            $delProductCategories = Single_Product_Category::where('prod_id', $id)->delete();
+
+            $selectProductColors = Single_Product_Color::where('prod_id', $id)->get();
+
+            foreach ($selectProductColors as $key => $value) {
+                $token = explode('/', $value->pic);
+                $file_name = explode('.', $token[sizeof($token) - 1]);
+
+                Cloudinary::destroy('ecommerce-backend-laravel/products/' . $id . '/colors' . '/' . $file_name[0]);
+            }
+
+            $delProductColors = Single_Product_Color::where('prod_id', $id)->delete();
+            $delProductSizes = Single_Product_Size::where('prod_id', $id)->delete();
+
+            return response()->json(['error' => false, 'message' => 'Product Deleted!'], 200);
+        } else {
+            return response()->json(['error' => true, 'message' => 'Product Not Found'], 500);
+        }
     }
 }
