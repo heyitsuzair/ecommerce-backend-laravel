@@ -11,5 +11,6 @@ class Single_Product_Color extends Model
 
     protected $table = 'single_prod_colors';
 
+
     public $timestamps = false;
 }

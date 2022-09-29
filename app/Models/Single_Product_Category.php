@@ -15,6 +15,7 @@ class Single_Product_Category extends Model
 
     protected $with = 'populate';
 
+
     function populate()
     {
         return   $this->belongsTo(Category::class, 'category', 'id');

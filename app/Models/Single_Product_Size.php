@@ -10,5 +10,6 @@ class Single_Product_Size extends Model
     use HasFactory;
     protected $table = 'single_prod_sizes';
 
+
     public $timestamps = false;
 }

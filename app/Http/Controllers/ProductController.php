@@ -83,25 +83,87 @@ class ProductController extends Controller
         // check whether the product id exists or not
         $select = Product::where('id', $id)->exists();
         if ($select) {
-
+            // deleting product
             $delProduct = Product::where('id', $id)->delete();
+            // deleting product categories
             $delProductCategories = Single_Product_Category::where('prod_id', $id)->delete();
 
+            // selecting product colors
             $selectProductColors = Single_Product_Color::where('prod_id', $id)->get();
-
+            // looping on product colors and deleting images from cloudinary one by one as each color contains its picture
             foreach ($selectProductColors as $key => $value) {
                 $token = explode('/', $value->pic);
                 $file_name = explode('.', $token[sizeof($token) - 1]);
-
                 Cloudinary::destroy('ecommerce-backend-laravel/products/' . $id . '/colors' . '/' . $file_name[0]);
             }
-
+            // deleting product colors
             $delProductColors = Single_Product_Color::where('prod_id', $id)->delete();
+            // deleting product sizes
             $delProductSizes = Single_Product_Size::where('prod_id', $id)->delete();
 
             return response()->json(['error' => false, 'message' => 'Product Deleted!'], 200);
         } else {
             return response()->json(['error' => true, 'message' => 'Product Not Found'], 500);
+        }
+    }
+
+    // function to update the product in database against id
+    function updateProduct($id, Request $req)
+    {
+        // check if exists
+        $exists = Product::where('id', $id)->exists();
+        if ($exists) {
+
+            $product = Product::find($id);
+            $product->name = $req->input('name');
+            $product->description = $req->input('description');
+            $product->price = $req->input('price');
+            $product->save();
+            if ($product) {
+                // first delete the categories,sizes and than add it again
+                $single_prod_cat = Single_Product_Category::where('prod_id', $id)->delete();
+                $single_prod_size = Single_Product_Size::where('prod_id', $id)->delete();
+
+                foreach (json_decode($req->input('colors')) as $key => $value) {
+                    // select the row and get picture and then explode it to delete it from cloudinary
+                    $getRow = Single_Product_Color::where('prod_id', $id)->where('color', $value)->get();
+                    $token = explode('/', $getRow[0]->pic);
+                    $file_name = explode('.', $token[sizeof($token) - 1]);
+                    Cloudinary::destroy('ecommerce-backend-laravel/products/' . $id . '/colors' . '/' . $file_name[0]);
+                }
+                $single_prod_color = Single_Product_Color::where('prod_id', $id)->delete();
+                // adding all categories into "single_product_category" table using for each
+                foreach (json_decode($req->input('categories')) as $key => $value) {
+                    $single_prod_cat =  new Single_Product_Category;
+                    $single_prod_cat->prod_id = $product->id;
+                    $single_prod_cat->category = $value;
+                    $single_prod_cat->save();
+                }
+                // adding all size into "single_product_sizes" table using for each
+                foreach (json_decode($req->input('sizes')) as $key => $value) {
+                    $single_prod_size = new Single_Product_Size();
+                    $single_prod_size->prod_id = $product->id;
+                    $single_prod_size->size = $value;
+                    $single_prod_size->save();
+                }
+                if ($req->input('colors')) {
+                    // adding all color into "single_product_colors" table using for each
+                    foreach (json_decode($req->input('colors')) as $key => $value) {
+                        $single_prod_color = new Single_Product_Color;
+                        $single_prod_color->prod_id = $product->id;
+                        $single_prod_color->color = $value;
+                        // adding all images to cloudinary with the help of key of color available in "colors_"key"_pic" file
+                        $uploadedFileUrl = $req->file('color_' . $key . '_pic')->storeOnCloudinary('ecommerce-backend-laravel/products/' .  $product->id . '/colors')->getSecurePath();
+                        $single_prod_color->pic = $uploadedFileUrl;
+                        $single_prod_color->save();
+                    }
+                }
+                return response()->json(['error' => false, 'message' => 'Product Updated!'], 200);
+            } else {
+                return response()->json(['error' => true, 'message' => 'Something Went Wrong!'], 400);
+            }
+        } else {
+            return response()->json(['error' => true, 'message' => 'Product Not Found!'], 400);
         }
     }
 }

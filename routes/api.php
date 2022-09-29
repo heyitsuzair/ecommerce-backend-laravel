@@ -40,4 +40,5 @@ Route::get('/getCategories', [CategoryController::class, 'selectCategories']);
 Route::post('/addProduct', [ProductController::class, 'addProduct']);
 Route::get('/getProducts', [ProductController::class, 'getProducts']);
 Route::post('/delProduct/{id}', [ProductController::class, 'delProduct']);
+Route::post('/updateProduct/{id}', [ProductController::class, 'updateProduct']);
 /* ------------------ Product Routes End ---------------- */
