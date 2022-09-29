@@ -21,6 +21,7 @@ class ProductController extends Controller
         $product->name = $req->input('name');
         $product->description = $req->input('description');
         $product->price = $req->input('price');
+        $product->available_quantity = $req->input('available_quantity');
         $product->save();
         if ($product) {
             // adding all categories into "single_product_category" table using for each
@@ -165,5 +166,28 @@ class ProductController extends Controller
         } else {
             return response()->json(['error' => true, 'message' => 'Product Not Found!'], 400);
         }
+    }
+    // function to get single product
+    function getSingleProduct($id)
+    {
+        // find product by id
+        $product = Product::find($id);
+
+        // get product categories
+        $productCategories = Single_Product_Category::where('prod_id', $id)->get();
+
+        // get product sizes
+        $productSizes = Single_Product_Size::where('prod_id', $id)->get();
+
+        // get product colors
+        $productColors = Single_Product_Color::where('prod_id', $id)->get();
+
+        // appending all info
+        $product->categories = (object)$productCategories;
+        $product->sizes = (object)$productSizes;
+        $product->colors = (object)$productColors;
+
+        // return the product
+        return $product;
     }
 }

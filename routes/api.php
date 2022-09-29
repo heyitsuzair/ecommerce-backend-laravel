@@ -41,4 +41,5 @@ Route::post('/addProduct', [ProductController::class, 'addProduct']);
 Route::get('/getProducts', [ProductController::class, 'getProducts']);
 Route::post('/delProduct/{id}', [ProductController::class, 'delProduct']);
 Route::post('/updateProduct/{id}', [ProductController::class, 'updateProduct']);
+Route::get('/getSingleProduct/{id}', [ProductController::class, 'getSingleProduct']);
 /* ------------------ Product Routes End ---------------- */
