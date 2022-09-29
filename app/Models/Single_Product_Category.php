@@ -13,10 +13,10 @@ class Single_Product_Category extends Model
 
     public $timestamps = false;
 
-    protected $with = 'category_populate';
+    protected $with = 'populate';
 
-    function category_populate()
+    function populate()
     {
-        $this->belongsTo(Category::class, 'category', 'id');
+        return   $this->belongsTo(Category::class, 'category', 'id');
     }
 }

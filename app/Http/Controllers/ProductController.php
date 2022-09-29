@@ -7,6 +7,7 @@ use App\Models\Single_Product_Category;
 use App\Models\Single_Product_Color;
 use App\Models\Single_Product_Size;
 use Illuminate\Http\Request;
+use stdClass;
 
 class ProductController extends Controller
 {
@@ -54,6 +55,24 @@ class ProductController extends Controller
     // function to get all products
     function getProducts()
     {
-        return Product::all();
+        $products = Product::all();
+
+        // looping on all incoming products and getting product sizes and appending it according to index of all products
+        foreach ($products as $key => $value) {
+            $sizes = Single_Product_Size::where('prod_id', $value->id)->get();
+            $products[$key]->sizes = (object)$sizes;
+        }
+        // looping on all incoming products and getting product colors and appending it according to index of all products
+        foreach ($products as $key => $value) {
+            $colors = Single_Product_Color::where('prod_id', $value->id)->get();
+            $products[$key]->colors = (object)$colors;
+        }
+        // looping on all incoming products and getting product categories and appending it according to index of all products
+        foreach ($products as $key => $value) {
+            $categories = Single_Product_Category::where('prod_id', $value->id)->get();
+            $products[$key]->categories = (object)$categories;
+        }
+        // return all products found, after adding sizes,colors and categories respectively
+        return $products;
     }
 }
