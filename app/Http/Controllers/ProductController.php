@@ -104,7 +104,7 @@ class ProductController extends Controller
 
             return response()->json(['error' => false, 'message' => 'Product Deleted!'], 200);
         } else {
-            return response()->json(['error' => true, 'message' => 'Product Not Found'], 500);
+            return response()->json(['error' => true, 'message' => 'Product Not Found'], 400);
         }
     }
 
@@ -170,24 +170,33 @@ class ProductController extends Controller
     // function to get single product
     function getSingleProduct($id)
     {
-        // find product by id
-        $product = Product::find($id);
+        // check if the product exits or not
+        $exists =  Product::where('id', $id)->exists();
+        if ($exists) {
 
-        // get product categories
-        $productCategories = Single_Product_Category::where('prod_id', $id)->get();
+            // find product by id
+            $product = Product::find($id);
 
-        // get product sizes
-        $productSizes = Single_Product_Size::where('prod_id', $id)->get();
+            // get product categories
+            $productCategories = Single_Product_Category::where('prod_id', $id)->get();
 
-        // get product colors
-        $productColors = Single_Product_Color::where('prod_id', $id)->get();
+            // get product sizes
+            $productSizes = Single_Product_Size::where('prod_id', $id)->get();
 
-        // appending all info
-        $product->categories = (object)$productCategories;
-        $product->sizes = (object)$productSizes;
-        $product->colors = (object)$productColors;
+            // get product colors
+            $productColors = Single_Product_Color::where('prod_id', $id)->get();
 
-        // return the product
-        return $product;
+            // appending all info
+            $product->categories = (object)$productCategories;
+            $product->sizes = (object)$productSizes;
+            $product->colors = (object)$productColors;
+
+            // return the product
+            return $product;
+
+            // size/color/quantity/price/product
+        } else {
+            return response()->json(['error' => true, 'message' => 'Product Not Found!'], 400);
+        }
     }
 }
